@@ -16,8 +16,12 @@ func TestRead(t *testing.T) {
 		expected string
 	}{
 		{"foo", "foo"},
+		{"foo\xf1bar", "foo\xf1bar"},
 		{"foo\xff\xf1bar", "foobar"},
 		{"foo\xff\xffbar", "foo\xffbar"},
+		{"foo\r\x00bar", "foo\rbar"},
+		{"foo\r\nbar", "foo\nbar"},
+		{"foo\rbar", "foobar"},
 	}
 	for _, test := range tests {
 		var conn net.Conn = telnet.NewConn(&conn{
