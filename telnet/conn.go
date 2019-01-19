@@ -56,3 +56,31 @@ func parseCR(c byte, p []byte, j int) (int, parseState) {
 	}
 	return j + 1, parseDefault
 }
+
+func (t *TelnetConnection) Write(p []byte) (n int, err error) {
+	b := make([]byte, 0, 2*len(p))
+	nmap := map[int]int{}
+	for i, c := range p {
+		n := len(b)
+		switch c {
+		case bIAC:
+			b = append(b, bIAC, bIAC)
+		case '\n':
+			b = append(b, '\r', '\n')
+		case '\r':
+			b = append(b, '\r', '\x00')
+		default:
+			b = append(b, c)
+		}
+		switch len(b) - n {
+		case 2:
+			nmap[len(b)-1] = i
+			fallthrough
+		case 1:
+			nmap[len(b)] = i + 1
+		}
+	}
+	n, err = t.Conn.Write(b)
+	n = nmap[n]
+	return
+}

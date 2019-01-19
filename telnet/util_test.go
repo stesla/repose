@@ -1,22 +1,23 @@
 package telnet_test
 
 import (
-	"bytes"
+	"io"
 	"net"
 	"time"
 )
 
 type conn struct {
-	rbuf, wbuf *bytes.Buffer
+	r io.Reader
+	w io.Writer
 }
 
 func (c *conn) Read(b []byte) (n int, err error) {
-	n, err = c.rbuf.Read(b)
+	n, err = c.r.Read(b)
 	return
 }
 
 func (c *conn) Write(b []byte) (n int, err error) {
-	n, err = c.wbuf.Write(b)
+	n, err = c.w.Write(b)
 	return
 }
 
